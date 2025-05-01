@@ -1,0 +1,87 @@
+basePath: /api/v1
+definitions:
+  entity.Book:
+    properties:
+      author:
+        type: string
+      book_id:
+        type: string
+      created_at:
+        type: string
+      isbn:
+        type: string
+      published_at:
+        type: string
+      publisher:
+        type: string
+      stock:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.CreateBookRequest:
+    properties:
+      author:
+        type: string
+      isbn:
+        type: string
+      published_at:
+        type: string
+      publisher:
+        type: string
+      stock:
+        type: integer
+      title:
+        type: string
+    required:
+    - author
+    - isbn
+    - published_at
+    - publisher
+    - stock
+    - title
+    type: object
+  model.WebResponse-entity_Book:
+    properties:
+      data:
+        $ref: '#/definitions/entity.Book'
+    type: object
+info:
+  contact: {}
+  description: Backend API service for Book Stock Manager
+  title: Book Stock Manager API
+  version: 0.0.1
+paths:
+  /books:
+    post:
+      consumes:
+      - application/json
+      description: Create a new book
+      parameters:
+      - description: Book data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateBookRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Book created
+          schema:
+            $ref: '#/definitions/model.WebResponse-entity_Book'
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Create a new book
+      tags:
+      - books
+swagger: "2.0"

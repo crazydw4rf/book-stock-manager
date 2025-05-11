@@ -1,7 +1,7 @@
 package config
 
 import (
-	"strings"
+	"log"
 	"time"
 
 	"github.com/spf13/viper"
@@ -9,7 +9,7 @@ import (
 
 // use -ldflags flag to change value of these variables
 //
-// example: -ldflags="-X github.com/crazydw4rf/magic-url/internal/config.APP_VERSION=1.0.4-beta"
+// example: -ldflags="-X github.com/crazydw4rf/book-stock-manager/internal/config.APP_VERSION=1.0.4-beta"
 var (
 	APP_ENV     = "development"
 	APP_VERSION = "0.0.1-alpha"
@@ -27,51 +27,41 @@ const (
 	RefreshTokenExpirationTime = (time.Hour * 24) * 7
 )
 
-type databaseConfig struct {
-	Host     string
-	Port     uint16
-	User     string
-	Password string
-	DBName   string `mapstructure:"db_name"`
-}
-
-type redisConfig struct {
-	Host string
-	Port int
-}
-
-type jwtConfig struct {
-	AccessTokenSecret  string `mapstructure:"access_token_secret"`
-	RefreshTokenSecret string `mapstructure:"refresh_token_secret"`
-}
-
-type appConfig struct {
-	Host string
-	Port int
-}
-
 type Config struct {
-	App      appConfig      `mapstructure:"app"`
-	Database databaseConfig `mapstructure:"database"`
-	JWT      jwtConfig      `mapstructure:"jwt"`
-	Redis    redisConfig    `mapstructure:"redis"`
+	APP_HOST                 string `mapstructure:"APP_HOST"`
+	APP_PORT                 int    `mapstructure:"APP_PORT"`
+	DB_HOST                  string `mapstructure:"DB_HOST"`
+	DB_PORT                  uint16 `mapstructure:"DB_PORT"`
+	DB_USER                  string `mapstructure:"DB_USER"`
+	DB_PASSWORD              string `mapstructure:"DB_PASSWORD"`
+	DB_NAME                  string `mapstructure:"DB_NAME"`
+	JWT_ACCESS_TOKEN_SECRET  string `mapstructure:"JWT_ACCESS_TOKEN_SECRET"`
+	JWT_REFRESH_TOKEN_SECRET string `mapstructure:"JWT_REFRESH_TOKEN_SECRET"`
 }
 
 func InitConfig() (*Config, error) {
 	cfg := new(Config)
 
+	// v := viper.NewWithOptions(
+	// 	viper.WithLogger(
+	// 		slog.New(
+	// 			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	// 				Level: slog.LevelDebug,
+	// 			}))))
 	v := viper.New()
 
 	v.AddConfigPath(".")
-	v.SetConfigType("toml")
-	v.SetConfigName("config")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.SetConfigType("env")
+	v.SetConfigName(".env")
 	v.AutomaticEnv()
 
-	_ = v.ReadInConfig()
+	err := v.ReadInConfig()
+	if err != nil {
+		log.Printf("Error reading config file: %v\n", err)
+	}
 
 	// TODO: struct validation?
-	err := v.Unmarshal(cfg)
+	err = v.Unmarshal(cfg)
 	if err != nil {
 		return nil, err
 	}

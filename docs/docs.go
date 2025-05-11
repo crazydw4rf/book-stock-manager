@@ -16,6 +16,53 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/books": {
+            "get": {
+                "description": "Get a list of books with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get books with pagination",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page offset (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page limit (default: 10)",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Books information with pagination metadata",
+                        "schema": {
+                            "$ref": "#/definitions/model.PaginatedResponse-model_BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to get books",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new book with the provided information",
                 "consumes": [
@@ -111,56 +158,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/books/id/{id}": {
-            "get": {
-                "description": "Get a book information by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "books"
-                ],
-                "summary": "Get book by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Book ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Book information",
-                        "schema": {
-                            "$ref": "#/definitions/model.BookResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Book ID is required",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Book not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to get book by ID",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/books/isbn/{isbn}": {
             "get": {
                 "description": "Get a book information by ISBN",
@@ -211,6 +208,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/books/{book_id}": {
+            "get": {
+                "description": "Get a book information by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book information",
+                        "schema": {
+                            "$ref": "#/definitions/model.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Book ID is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to get book by ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/books/{id}": {
             "delete": {
                 "description": "Delete book by ID",
@@ -254,60 +301,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to delete book",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/books/{offset}/{limit}": {
-            "get": {
-                "description": "Get a list of books with pagination",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "books"
-                ],
-                "summary": "Get books with pagination",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Page offset",
-                        "name": "offset",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page limit",
-                        "name": "limit",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Books information",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.BookResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid query parameters",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to get books",
                         "schema": {
                             "type": "string"
                         }
@@ -385,6 +378,65 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Hujan"
+                }
+            }
+        },
+        "model.PaginatedResponse-model_BookResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.BookResponse"
+                    }
+                },
+                "links": {
+                    "$ref": "#/definitions/model.PaginationLinks"
+                },
+                "meta": {
+                    "$ref": "#/definitions/model.PaginationMeta"
+                }
+            }
+        },
+        "model.PaginationLinks": {
+            "type": "object",
+            "properties": {
+                "first": {
+                    "type": "string",
+                    "example": "/api/v1/books?offset=0\u0026limit=10"
+                },
+                "last": {
+                    "type": "string",
+                    "example": "/api/v1/books?offset=90\u0026limit=10"
+                },
+                "next": {
+                    "type": "string",
+                    "example": "/api/v1/books?offset=10\u0026limit=10"
+                },
+                "prev": {
+                    "type": "string",
+                    "example": "/api/v1/books?offset=0\u0026limit=10"
+                },
+                "self": {
+                    "type": "string",
+                    "example": "/api/v1/books?offset=0\u0026limit=10"
+                }
+            }
+        },
+        "model.PaginationMeta": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "offset": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
                 }
             }
         },

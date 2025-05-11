@@ -53,6 +53,47 @@ definitions:
     - stock
     - title
     type: object
+  model.PaginatedResponse-model_BookResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.BookResponse'
+        type: array
+      links:
+        $ref: '#/definitions/model.PaginationLinks'
+      meta:
+        $ref: '#/definitions/model.PaginationMeta'
+    type: object
+  model.PaginationLinks:
+    properties:
+      first:
+        example: /api/v1/books?offset=0&limit=10
+        type: string
+      last:
+        example: /api/v1/books?offset=90&limit=10
+        type: string
+      next:
+        example: /api/v1/books?offset=10&limit=10
+        type: string
+      prev:
+        example: /api/v1/books?offset=0&limit=10
+        type: string
+      self:
+        example: /api/v1/books?offset=0&limit=10
+        type: string
+    type: object
+  model.PaginationMeta:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      offset:
+        example: 0
+        type: integer
+      total:
+        example: 100
+        type: integer
+    type: object
   model.UpdateBookRequest:
     properties:
       author:
@@ -86,6 +127,37 @@ info:
   version: 0.0.1
 paths:
   /books:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of books with pagination
+      parameters:
+      - description: 'Page offset (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: 'Page limit (default: 10)'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Books information with pagination metadata
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse-model_BookResponse'
+        "400":
+          description: Invalid query parameters
+          schema:
+            type: string
+        "500":
+          description: Failed to get books
+          schema:
+            type: string
+      summary: Get books with pagination
+      tags:
+      - books
     patch:
       consumes:
       - application/json
@@ -148,6 +220,39 @@ paths:
       summary: Create a new book
       tags:
       - books
+  /books/{book_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a book information by ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book information
+          schema:
+            $ref: '#/definitions/model.BookResponse'
+        "400":
+          description: Book ID is required
+          schema:
+            type: string
+        "404":
+          description: Book not found
+          schema:
+            type: string
+        "500":
+          description: Failed to get book by ID
+          schema:
+            type: string
+      summary: Get book by ID
+      tags:
+      - books
   /books/{id}:
     delete:
       consumes:
@@ -179,75 +284,6 @@ paths:
           schema:
             type: string
       summary: Delete book
-      tags:
-      - books
-  /books/{offset}/{limit}:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of books with pagination
-      parameters:
-      - description: Page offset
-        in: path
-        name: offset
-        required: true
-        type: integer
-      - description: Page limit
-        in: path
-        name: limit
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Books information
-          schema:
-            items:
-              $ref: '#/definitions/model.BookResponse'
-            type: array
-        "400":
-          description: Invalid query parameters
-          schema:
-            type: string
-        "500":
-          description: Failed to get books
-          schema:
-            type: string
-      summary: Get books with pagination
-      tags:
-      - books
-  /books/id/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a book information by ID
-      parameters:
-      - description: Book ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Book information
-          schema:
-            $ref: '#/definitions/model.BookResponse'
-        "400":
-          description: Book ID is required
-          schema:
-            type: string
-        "404":
-          description: Book not found
-          schema:
-            type: string
-        "500":
-          description: Failed to get book by ID
-          schema:
-            type: string
-      summary: Get book by ID
       tags:
       - books
   /books/isbn/{isbn}:

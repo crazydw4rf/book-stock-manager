@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/crazydw4rf/book-stock-manager/internal/model"
@@ -123,30 +124,35 @@ func (b BookController) GetBookByID(c *fiber.Ctx) error {
 //	@Summary		Get books with pagination
 //	@Description	Get a list of books with pagination
 //	@Tags			books
-//	@Router			/books/{offset}/{limit} [get]
+//	@Router			/books [get]
 //	@Accept			json
 //	@Produce		json
-//	@Param			offset	path		int					true	"Page offset"
-//	@Param			limit	path		int					true	"Page limit"
-//	@Success		200		{array}		model.BookResponse	"Books information"
-//	@Failure		500		{string}	string				"Failed to get books"
-//	@Failure		400		{string}	string				"Invalid query parameters"
+//	@Param			offset	query		int											false	"Page offset (default: 0)"
+//	@Param			limit	query		int											false	"Page limit (default: 10)"
+//	@Success		200		{object}	model.PaginatedResponse[model.BookResponse]	"Books information with pagination metadata"
+//	@Failure		500		{string}	string										"Failed to get books"
+//	@Failure		400		{string}	string										"Invalid query parameters"
 func (b BookController) GetBooks(c *fiber.Ctx) error {
-	p := struct {
-		Offset int `params:"offset"`
-		Limit  int `params:"limit"`
-	}{}
-
-	err := c.ParamsParser(&p)
-	if err != nil {
+	// Parse pagination request
+	pagination := new(model.PaginationRequest)
+	if err := c.QueryParser(pagination); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid query parameters")
 	}
 
-	if p.Offset < 0 || p.Limit <= 0 {
-		return fiber.NewError(fiber.StatusBadRequest, "Offset and limit must be greater than 0")
+	// Set default values if not provided
+	if pagination.Limit <= 0 {
+		pagination.Limit = 10
+	}
+	if pagination.Offset < 0 {
+		pagination.Offset = 0
 	}
 
-	books, err := b.bookUsecase.GetMany(c.Context(), int64(p.Offset), int64(p.Limit))
+	// Validate pagination parameters
+	if pagination.Limit > 100 {
+		return fiber.NewError(fiber.StatusBadRequest, "Maximum limit is 100")
+	}
+
+	books, total, err := b.bookUsecase.GetMany(c.Context(), pagination.Offset, pagination.Limit)
 	if err != nil {
 		var fe *fiber.Error
 		if eris.As(err, &fe) {
@@ -156,7 +162,39 @@ func (b BookController) GetBooks(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get books")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(books)
+	// Calculate if there are previous and next pages
+	hasNext := pagination.Offset+pagination.Limit < total
+	hasPrev := pagination.Offset > 0
+
+	// Build full request URL
+	baseURL := c.BaseURL() + c.Route().Path
+
+	// Create response with pagination metadata
+	response := model.PaginatedResponse[model.BookResponse]{
+		Data: books,
+		Meta: model.PaginationMeta{
+			Offset: pagination.Offset,
+			Limit:  pagination.Limit,
+			Total:  total,
+		},
+		Links: model.PaginationLinks{
+			Self:  fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, pagination.Offset, pagination.Limit),
+			First: fmt.Sprintf("%s?offset=0&limit=%d", baseURL, pagination.Limit),
+			Last:  fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, (total/pagination.Limit)*pagination.Limit, pagination.Limit),
+		},
+	}
+
+	// Add next link if there are more items
+	if hasNext {
+		response.Links.Next = fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, pagination.Offset+pagination.Limit, pagination.Limit)
+	}
+
+	// Add previous link if not on the first page
+	if hasPrev {
+		response.Links.Prev = fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, max(0, pagination.Offset-pagination.Limit), pagination.Limit)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // Update memperbarui data buku
@@ -205,7 +243,7 @@ func (b BookController) Update(c *fiber.Ctx) error {
 //	@Failure		404	{string}	string	"Book not found"
 //	@Failure		400	{string}	string	"Book ID is required"
 func (b BookController) Delete(c *fiber.Ctx) error {
-	bookId := c.Params("id")
+	bookId := c.Params("book_id")
 	if bookId == "" {
 		return fiber.NewError(fiber.StatusBadRequest, "Book ID is required")
 	}
@@ -221,4 +259,12 @@ func (b BookController) Delete(c *fiber.Ctx) error {
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+// max returns the maximum of two int64 values
+func max(a, b int64) int64 {
+	if a > b {
+		return a
+	}
+	return b
 }

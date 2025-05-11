@@ -87,25 +87,31 @@ func (b BookUsecase) GetByISBN(ctx context.Context, isbn string) (model.BookResp
 	return model.BookToResponse(book), nil
 }
 
-func (b BookUsecase) GetMany(ctx context.Context, offset int64, limit int64) ([]model.BookResponse, error) {
+func (b BookUsecase) GetMany(ctx context.Context, offset int64, limit int64) ([]model.BookResponse, int64, error) {
 	if limit <= 0 {
-		return nil, eris.Wrap(fiber.NewError(fiber.StatusBadRequest, "Limit must be greater than 0"), "Invalid limit")
+		return nil, 0, eris.Wrap(fiber.NewError(fiber.StatusBadRequest, "Limit must be greater than 0"), "Invalid limit")
 	}
 
 	books, err := b.bookRepo.GetMany(ctx, offset, limit)
 	if err != nil {
 		if eris.Is(err, types.ErrNoRows) {
-			return nil, fiber.NewError(fiber.StatusNotFound, "No books found")
+			return nil, 0, fiber.NewError(fiber.StatusNotFound, "No books found")
 		}
-		return nil, eris.Wrap(fiber.NewError(fiber.StatusInternalServerError, "Failed to get books"), eris.ToString(err, true))
+		return nil, 0, eris.Wrap(fiber.NewError(fiber.StatusInternalServerError, "Failed to get books"), eris.ToString(err, true))
 	}
 
-	booksResp := make([]model.BookResponse, limit)
+	// Get total count for pagination
+	total, err := b.bookRepo.GetTotalCount(ctx)
+	if err != nil {
+		return nil, 0, eris.Wrap(fiber.NewError(fiber.StatusInternalServerError, "Failed to get total count"), eris.ToString(err, true))
+	}
+
+	booksResp := make([]model.BookResponse, len(books))
 	for i, book := range books {
 		booksResp[i] = model.BookToResponse(book)
 	}
 
-	return booksResp, nil
+	return booksResp, total, nil
 }
 
 func (b BookUsecase) Update(ctx context.Context, request *model.UpdateBookRequest) (model.BookResponse, error) {

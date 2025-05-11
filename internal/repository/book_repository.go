@@ -56,14 +56,14 @@ func (b BookRepository) GetByISBN(ctx context.Context, isbn string) (*entity.Boo
 }
 
 func (b BookRepository) GetMany(ctx context.Context, offset int64, limit int64) ([]*entity.Book, error) {
-	books := make([]*entity.Book, limit)
-	err := b.db.SelectContext(ctx, books, bookGetBooksMany, offset, limit)
+	books := make([]*entity.Book, 0)
+	err := b.db.SelectContext(ctx, &books, bookGetBooksMany, offset, limit)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, eris.Wrap(types.ErrNoRows, "books not found")
-		}
-
 		return nil, eris.Wrap(types.ErrDatabaseQuery, err.Error())
+	}
+
+	if len(books) == 0 {
+		return books, nil
 	}
 
 	return books, nil
@@ -102,4 +102,15 @@ func (b BookRepository) Delete(ctx context.Context, bookId uuid.UUID) error {
 	}
 
 	return nil
+}
+
+// GetTotalCount returns the total number of books in the database
+func (b BookRepository) GetTotalCount(ctx context.Context) (int64, error) {
+	var total int64
+	err := b.db.GetContext(ctx, &total, bookGetTotalCount)
+	if err != nil {
+		return 0, eris.Wrap(types.ErrDatabaseQuery, err.Error())
+	}
+	
+	return total, nil
 }

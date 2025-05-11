@@ -9,7 +9,7 @@ const (
 	BASE_PATH      = "/api/v1"
 	BOOK_CREATE    = BASE_PATH + "/books"
 	BOOK_GETBYID   = BASE_PATH + "/books/:book_id"
-	BOOK_GETBYISBN = BASE_PATH + "/books/:isbn"
+	BOOK_GETBYISBN = BASE_PATH + "/books/isbn/:isbn"
 	BOOK_GETMANY   = BASE_PATH + "/books"
 	BOOK_UPDATE    = BASE_PATH + "/books"
 	BOOK_DELETE    = BASE_PATH + "/books/:book_id"
@@ -19,7 +19,7 @@ func SetupBookHandler(app *fiber.App, ctrl *controller.BookController) *fiber.Ap
 	app.Post(BOOK_CREATE, ctrl.BookCreate)
 	app.Get(BOOK_GETBYID, ctrl.GetBookByID)
 	app.Get(BOOK_GETBYISBN, ctrl.GetBookByISBN)
-	app.Post(BOOK_GETMANY, ctrl.GetBooks)
+	app.Get(BOOK_GETMANY, ctrl.GetBooks)
 	app.Patch(BOOK_UPDATE, ctrl.Update)
 	app.Delete(BOOK_DELETE, ctrl.Delete)
 

@@ -1,39 +1,49 @@
 basePath: /api/v1
 definitions:
-  entity.Book:
+  model.BookResponse:
     properties:
       author:
+        example: Tere Liye
         type: string
       book_id:
-        type: string
-      created_at:
+        example: b2a0f3c4-5d8e-4c1b-9f7e-2d3f4e5a6b7c
         type: string
       isbn:
+        example: 978-3-16-148410-0
         type: string
       published_at:
+        example: "2016-01-28"
         type: string
       publisher:
+        example: Gramedia
         type: string
       stock:
+        example: 200
         type: integer
       title:
-        type: string
-      updated_at:
+        example: Hujan
         type: string
     type: object
   model.CreateBookRequest:
     properties:
       author:
+        example: Tere Liye
         type: string
       isbn:
+        example: "9783161484100"
         type: string
       published_at:
+        example: "2016-01-28"
         type: string
       publisher:
+        example: Gramedia
         type: string
       stock:
+        example: 200
+        minimum: 0
         type: integer
       title:
+        example: Hujan
         type: string
     required:
     - author
@@ -43,10 +53,31 @@ definitions:
     - stock
     - title
     type: object
-  model.WebResponse-entity_Book:
+  model.UpdateBookRequest:
     properties:
-      data:
-        $ref: '#/definitions/entity.Book'
+      author:
+        example: Tere Liye
+        type: string
+      book_id:
+        type: string
+      isbn:
+        example: "9783161484100"
+        type: string
+      published_at:
+        example: "2016-01-28"
+        type: string
+      publisher:
+        example: Gramedia
+        type: string
+      stock:
+        example: 200
+        minimum: 0
+        type: integer
+      title:
+        example: Hujan
+        type: string
+    required:
+    - book_id
     type: object
 info:
   contact: {}
@@ -55,12 +86,45 @@ info:
   version: 0.0.1
 paths:
   /books:
+    patch:
+      consumes:
+      - application/json
+      description: Update book information partially
+      parameters:
+      - description: Request payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateBookRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated book
+          schema:
+            $ref: '#/definitions/model.BookResponse'
+        "400":
+          description: Invalid request payload
+          schema:
+            type: string
+        "404":
+          description: Book not found
+          schema:
+            type: string
+        "500":
+          description: Failed to update book
+          schema:
+            type: string
+      summary: Update book
+      tags:
+      - books
     post:
       consumes:
       - application/json
-      description: Create a new book
+      description: Create a new book with the provided information
       parameters:
-      - description: Book data
+      - description: Request payload
         in: body
         name: payload
         required: true
@@ -72,16 +136,151 @@ paths:
         "201":
           description: Book created
           schema:
-            $ref: '#/definitions/model.WebResponse-entity_Book'
+            $ref: '#/definitions/model.BookResponse'
         "400":
-          description: Bad request
+          description: Invalid request payload
           schema:
             type: string
         "500":
-          description: Internal server error
+          description: Failed to create book
           schema:
             type: string
       summary: Create a new book
+      tags:
+      - books
+  /books/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete book by ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Book ID is required
+          schema:
+            type: string
+        "404":
+          description: Book not found
+          schema:
+            type: string
+        "500":
+          description: Failed to delete book
+          schema:
+            type: string
+      summary: Delete book
+      tags:
+      - books
+  /books/{offset}/{limit}:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of books with pagination
+      parameters:
+      - description: Page offset
+        in: path
+        name: offset
+        required: true
+        type: integer
+      - description: Page limit
+        in: path
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Books information
+          schema:
+            items:
+              $ref: '#/definitions/model.BookResponse'
+            type: array
+        "400":
+          description: Invalid query parameters
+          schema:
+            type: string
+        "500":
+          description: Failed to get books
+          schema:
+            type: string
+      summary: Get books with pagination
+      tags:
+      - books
+  /books/id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a book information by ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book information
+          schema:
+            $ref: '#/definitions/model.BookResponse'
+        "400":
+          description: Book ID is required
+          schema:
+            type: string
+        "404":
+          description: Book not found
+          schema:
+            type: string
+        "500":
+          description: Failed to get book by ID
+          schema:
+            type: string
+      summary: Get book by ID
+      tags:
+      - books
+  /books/isbn/{isbn}:
+    get:
+      consumes:
+      - application/json
+      description: Get a book information by ISBN
+      parameters:
+      - description: ISBN
+        in: path
+        name: isbn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book information
+          schema:
+            $ref: '#/definitions/model.BookResponse'
+        "400":
+          description: ISBN is required
+          schema:
+            type: string
+        "404":
+          description: Book not found
+          schema:
+            type: string
+        "500":
+          description: Failed to get book by ISBN
+          schema:
+            type: string
+      summary: Get book by ISBN
       tags:
       - books
 swagger: "2.0"

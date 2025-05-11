@@ -11,6 +11,8 @@ import (
 	"github.com/crazydw4rf/book-stock-manager/internal/config"
 	"github.com/crazydw4rf/book-stock-manager/internal/controller"
 	"github.com/crazydw4rf/book-stock-manager/internal/handler"
+	"github.com/crazydw4rf/book-stock-manager/internal/repository"
+	"github.com/crazydw4rf/book-stock-manager/internal/usecase"
 	"github.com/go-playground/validator/v10"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -36,7 +38,7 @@ func newValidator() *validator.Validate {
 }
 
 func newDBConn(cfg *config.Config) (*sqlx.DB, error) {
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", cfg.Database.Host, cfg.Database.Port, cfg.Database.User, cfg.Database.Password, cfg.Database.DBName)
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", cfg.DB_HOST, cfg.DB_PORT, cfg.DB_USER, cfg.DB_PASSWORD, cfg.DB_NAME)
 	db, err := sqlx.Open("postgres", dsn)
 	if err != nil {
 		return nil, err
@@ -57,13 +59,11 @@ func newFiberApp() (*fiber.App, error) {
 		DisableStartupMessage: true,
 	})
 
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-	}))
+	app.Use(cors.New())
 
 	app.Use(helmet.New())
 
-	app.Get("/docs/*", swagger.New(swagger.Config{Title: "Book Stock Manager | API Docs"}))
+	app.Get("/docs/*", swagger.New(swagger.Config{Title: "Book Stock Manager | API Docs", TryItOutEnabled: false}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -75,9 +75,10 @@ func newFiberApp() (*fiber.App, error) {
 	return app, nil
 }
 
+// TODO: implement graceful shutdown
 func startApp(lc fx.Lifecycle, app *fiber.App, cfg *config.Config) {
 	lc.Append(fx.StartHook(func() {
-		listenAddr := fmt.Sprintf("%s:%d", cfg.App.Host, cfg.App.Port)
+		listenAddr := fmt.Sprintf("%s:%d", cfg.APP_HOST, cfg.APP_PORT)
 
 		log.Printf("Starting app...listen to: http://%s\n", listenAddr)
 
@@ -100,6 +101,7 @@ func startApp(lc fx.Lifecycle, app *fiber.App, cfg *config.Config) {
 func main() {
 	app := fx.New(
 		fx.Provide(newConfig, newFiberApp, newDBConn, newValidator),
+		fx.Provide(repository.NewBookRepository, usecase.NewBookUsecase),
 		fx.Provide(controller.NewBookController),
 		fx.Decorate(handler.SetupBookHandler),
 		fx.Invoke(startApp),

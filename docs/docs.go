@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/books": {
             "post": {
-                "description": "Create a new book",
+                "description": "Create a new book with the provided information",
                 "consumes": [
                     "application/json"
                 ],
@@ -30,7 +30,7 @@ const docTemplate = `{
                 "summary": "Create a new book",
                 "parameters": [
                     {
-                        "description": "Book data",
+                        "description": "Request payload",
                         "name": "payload",
                         "in": "body",
                         "required": true,
@@ -43,17 +43,271 @@ const docTemplate = `{
                     "201": {
                         "description": "Book created",
                         "schema": {
-                            "$ref": "#/definitions/model.WebResponse-entity_Book"
+                            "$ref": "#/definitions/model.BookResponse"
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Invalid request payload",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Failed to create book",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update book information partially",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Update book",
+                "parameters": [
+                    {
+                        "description": "Request payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdateBookRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated book",
+                        "schema": {
+                            "$ref": "#/definitions/model.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request payload",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update book",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/books/id/{id}": {
+            "get": {
+                "description": "Get a book information by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book information",
+                        "schema": {
+                            "$ref": "#/definitions/model.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Book ID is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to get book by ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/books/isbn/{isbn}": {
+            "get": {
+                "description": "Get a book information by ISBN",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book by ISBN",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ISBN",
+                        "name": "isbn",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book information",
+                        "schema": {
+                            "$ref": "#/definitions/model.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "ISBN is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to get book by ISBN",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/books/{id}": {
+            "delete": {
+                "description": "Delete book by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Delete book",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Book ID is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete book",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/books/{offset}/{limit}": {
+            "get": {
+                "description": "Get a list of books with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get books with pagination",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page offset",
+                        "name": "offset",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page limit",
+                        "name": "limit",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Books information",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.BookResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to get books",
                         "schema": {
                             "type": "string"
                         }
@@ -63,35 +317,36 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entity.Book": {
+        "model.BookResponse": {
             "type": "object",
             "properties": {
                 "author": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Tere Liye"
                 },
                 "book_id": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "b2a0f3c4-5d8e-4c1b-9f7e-2d3f4e5a6b7c"
                 },
                 "isbn": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "978-3-16-148410-0"
                 },
                 "published_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2016-01-28"
                 },
                 "publisher": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Gramedia"
                 },
                 "stock": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 200
                 },
                 "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Hujan"
                 }
             }
         },
@@ -107,30 +362,65 @@ const docTemplate = `{
             ],
             "properties": {
                 "author": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Tere Liye"
                 },
                 "isbn": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "9783161484100"
                 },
                 "published_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2016-01-28"
                 },
                 "publisher": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Gramedia"
                 },
                 "stock": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 200
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Hujan"
                 }
             }
         },
-        "model.WebResponse-entity_Book": {
+        "model.UpdateBookRequest": {
             "type": "object",
+            "required": [
+                "book_id"
+            ],
             "properties": {
-                "data": {
-                    "$ref": "#/definitions/entity.Book"
+                "author": {
+                    "type": "string",
+                    "example": "Tere Liye"
+                },
+                "book_id": {
+                    "type": "string"
+                },
+                "isbn": {
+                    "type": "string",
+                    "example": "9783161484100"
+                },
+                "published_at": {
+                    "type": "string",
+                    "example": "2016-01-28"
+                },
+                "publisher": {
+                    "type": "string",
+                    "example": "Gramedia"
+                },
+                "stock": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 200
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Hujan"
                 }
             }
         }

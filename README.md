@@ -32,8 +32,8 @@ Dokumentasi API dapat diakses [disini](https://crazydw4rf.github.io/book-stock-m
    # Database config
    DB_HOST=localhost
    DB_PORT=5432
-   DB_USER=username_anda
-   DB_PASSWORD=password_anda
+   DB_USER=username
+   DB_PASSWORD=password
    DB_NAME=book_stock
    ```
 
@@ -49,11 +49,17 @@ go run db/migrate.go db/migrations up
 ### Build App (Linux)
 
 ```bash
-# Build app
+# Simpan nama modul ke variabel untuk memudahkan
+export MODULE="github.com/crazydw4rf/book-stock-manager"
+
+# Build app (debug mode)
 go build -o book-stock-manager ./cmd/app/main.go
 
-# Atau dengan custom version
-go build -ldflags="-X github.com/crazydw4rf/book-stock-manager/internal/config.APP_VERSION=1.0.0" -o book-stock-manager ./cmd/app/main.go
+# Build with custom version
+go build -ldflags="-X ${MODULE}/internal/config.APP_VERSION=1.0.0" -o book-stock-manager ./cmd/app/main.go
+
+# Build for production (release mode)
+go build -ldflags="-s -w -X ${MODULE}/internal/config.APP_VERSION=1.0.0 -X ${MODULE}/internal/config.APP_ENV=production" -o book-stock-manager ./cmd/app/main.go
 ```
 
 ### Run App (Linux)

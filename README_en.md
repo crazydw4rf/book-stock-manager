@@ -32,8 +32,8 @@ Documentation for the API can be accessed [here](https://crazydw4rf.github.io/bo
    # Database configuration
    DB_HOST=localhost
    DB_PORT=5432
-   DB_USER=your_username
-   DB_PASSWORD=your_password
+   DB_USER=username
+   DB_PASSWORD=password
    DB_NAME=book_stock
    ```
 
@@ -49,11 +49,17 @@ go run db/migrate.go db/migrations up
 ### How to Build (Linux)
 
 ```bash
-# Build the application
+# Store module name in a variable for easier use
+export MODULE="github.com/crazydw4rf/book-stock-manager"
+
+# Build the application (debug mode)
 go build -o book-stock-manager ./cmd/app/main.go
 
-# Or with a custom version
-go build -ldflags="-X github.com/crazydw4rf/book-stock-manager/internal/config.APP_VERSION=1.0.0" -o book-stock-manager ./cmd/app/main.go
+# Build with a custom version
+go build -ldflags="-X ${MODULE}/internal/config.APP_VERSION=1.0.0" -o book-stock-manager ./cmd/app/main.go
+
+# Build for production (release mode)
+go build -ldflags="-s -w -X ${MODULE}/internal/config.APP_VERSION=1.0.0 -X ${MODULE}/internal/config.APP_ENV=production" -o book-stock-manager ./cmd/app/main.go
 ```
 
 ### How to Run (Linux)

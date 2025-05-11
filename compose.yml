@@ -1,6 +1,18 @@
-version: "3"
-
 services:
-  backend:
+  backend-api:
     image: book-stock-manager
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: book-stock-manager-service
+    env_file: .env
+    ports:
+      - "127.0.0.1:8080:8080/tcp"
+    networks:
+      - backend-internal-network
+
+networks:
+  backend-internal-network:
+
+volumes:
+  db-book:

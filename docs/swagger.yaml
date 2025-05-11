@@ -221,39 +221,6 @@ paths:
       tags:
       - books
   /books/{book_id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a book information by ID
-      parameters:
-      - description: Book ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Book information
-          schema:
-            $ref: '#/definitions/model.BookResponse'
-        "400":
-          description: Book ID is required
-          schema:
-            type: string
-        "404":
-          description: Book not found
-          schema:
-            type: string
-        "500":
-          description: Failed to get book by ID
-          schema:
-            type: string
-      summary: Get book by ID
-      tags:
-      - books
-  /books/{id}:
     delete:
       consumes:
       - application/json
@@ -261,7 +228,7 @@ paths:
       parameters:
       - description: Book ID
         in: path
-        name: id
+        name: book_id
         required: true
         type: string
       produces:
@@ -284,6 +251,38 @@ paths:
           schema:
             type: string
       summary: Delete book
+      tags:
+      - books
+    get:
+      consumes:
+      - application/json
+      description: Get a book information by ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: book_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Book information
+          schema:
+            $ref: '#/definitions/model.BookResponse'
+        "400":
+          description: Book ID is required
+          schema:
+            type: string
+        "404":
+          description: Book not found
+          schema:
+            type: string
+        "500":
+          description: Failed to get book by ID
+          schema:
+            type: string
+      summary: Get book by ID
       tags:
       - books
   /books/isbn/{isbn}:

@@ -95,11 +95,11 @@ func (b BookController) GetBookByISBN(c *fiber.Ctx) error {
 //	@Router			/books/{book_id} [get]
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string				true	"Book ID"
-//	@Success		200	{object}	model.BookResponse	"Book information"
-//	@Failure		500	{string}	string				"Failed to get book by ID"
-//	@Failure		404	{string}	string				"Book not found"
-//	@Failure		400	{string}	string				"Book ID is required"
+//	@Param			book_id	path		string				true	"Book ID"
+//	@Success		200		{object}	model.BookResponse	"Book information"
+//	@Failure		500		{string}	string				"Failed to get book by ID"
+//	@Failure		404		{string}	string				"Book not found"
+//	@Failure		400		{string}	string				"Book ID is required"
 func (b BookController) GetBookByID(c *fiber.Ctx) error {
 	bookId := c.Params("book_id")
 	if bookId == "" {
@@ -234,14 +234,14 @@ func (b BookController) Update(c *fiber.Ctx) error {
 //	@Summary		Delete book
 //	@Description	Delete book by ID
 //	@Tags			books
-//	@Router			/books/{id} [delete]
+//	@Router			/books/{book_id} [delete]
 //	@Accept			json
 //	@Produce		json
-//	@Param			id	path		string	true	"Book ID"
-//	@Success		204	{string}	string	"No Content"
-//	@Failure		500	{string}	string	"Failed to delete book"
-//	@Failure		404	{string}	string	"Book not found"
-//	@Failure		400	{string}	string	"Book ID is required"
+//	@Param			book_id	path		string	true	"Book ID"
+//	@Success		204		{string}	string	"No Content"
+//	@Failure		500		{string}	string	"Failed to delete book"
+//	@Failure		404		{string}	string	"Book not found"
+//	@Failure		400		{string}	string	"Book ID is required"
 func (b BookController) Delete(c *fiber.Ctx) error {
 	bookId := c.Params("book_id")
 	if bookId == "" {

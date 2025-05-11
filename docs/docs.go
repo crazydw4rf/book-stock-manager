@@ -225,7 +225,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Book ID",
-                        "name": "id",
+                        "name": "book_id",
                         "in": "path",
                         "required": true
                     }
@@ -256,9 +256,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/books/{id}": {
+            },
             "delete": {
                 "description": "Delete book by ID",
                 "consumes": [
@@ -275,7 +273,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Book ID",
-                        "name": "id",
+                        "name": "book_id",
                         "in": "path",
                         "required": true
                     }

@@ -218,7 +218,7 @@
                     {
                         "type": "string",
                         "description": "Book ID",
-                        "name": "id",
+                        "name": "book_id",
                         "in": "path",
                         "required": true
                     }
@@ -249,9 +249,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/books/{id}": {
+            },
             "delete": {
                 "description": "Delete book by ID",
                 "consumes": [
@@ -268,7 +266,7 @@
                     {
                         "type": "string",
                         "description": "Book ID",
-                        "name": "id",
+                        "name": "book_id",
                         "in": "path",
                         "required": true
                     }

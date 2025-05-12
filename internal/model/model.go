@@ -1,33 +1,44 @@
 package model
 
-import "github.com/crazydw4rf/book-stock-manager/internal/entity"
+import (
+	"strings"
+
+	"github.com/crazydw4rf/book-stock-manager/internal/entity"
+)
 
 type HTTPError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code      int    `json:"code" example:"400"`
+	Message   string `json:"message" example:"Invalid request payload"`
+	Error     string `json:"error,omitempty" example:"Bad Request"`
+	Timestamp string `json:"timestamp,omitempty" example:"2023-12-01T12:34:56Z"`
+	Path      string `json:"path,omitempty" example:"/books"`
 }
 
-// PaginationRequest represents the query parameters for pagination
+type DataResponse[T any] struct {
+	Data T `json:"data"`
+}
+
+// PaginationRequest merepresentasikan parameter kueri untuk paginasi
 type PaginationRequest struct {
 	Offset int64 `json:"offset" query:"offset" validate:"min=0" example:"0"`
 	Limit  int64 `json:"limit" query:"limit" validate:"min=1,max=100" example:"10"`
 }
 
-// PaginationMeta represents metadata about the pagination
+// PaginationMeta merepresentasikan metadata tentang hasil paginasi
 type PaginationMeta struct {
 	Offset int64 `json:"offset" example:"0"`
 	Limit  int64 `json:"limit" example:"10"`
 	Total  int64 `json:"total" example:"100"`
 }
 
-// PaginatedResponse is a generic wrapper for paginated responses
 type PaginatedResponse[T any] struct {
-	Data  []T           `json:"data"`
-	Meta  PaginationMeta `json:"meta"`
+	Data  []T             `json:"data"`
+	Meta  PaginationMeta  `json:"meta"`
 	Links PaginationLinks `json:"links"`
 }
 
-// PaginationLinks provides HATEOAS links for pagination
+// PaginationLinks menyediakan tautan navigasi yang sesuai dengan HATEOAS untuk paginasi
+// Tautan-tautan ini memungkinkan klien untuk menavigasi koleksi tanpa membangun URL secara manual
 type PaginationLinks struct {
 	Self  string `json:"self" example:"/api/v1/books?offset=0&limit=10"`
 	Next  string `json:"next,omitempty" example:"/api/v1/books?offset=10&limit=10"`
@@ -36,7 +47,11 @@ type PaginationLinks struct {
 	Last  string `json:"last" example:"/api/v1/books?offset=90&limit=10"`
 }
 
+// BookToResponse mengkonversi entity.Book menjadi model BookResponse
+// Fungsi ini menangani semua transformasi data yang diperlukan seperti memotong spasi dari ISBN
 func BookToResponse(book *entity.Book) BookResponse {
+	book.ISBN = strings.TrimSpace(book.ISBN)
+
 	return BookResponse{
 		BookID:      book.BookId,
 		ISBN:        book.ISBN,

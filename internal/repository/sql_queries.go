@@ -12,7 +12,7 @@ isbn = COALESCE(NULLIF($2, ''), isbn),
 title = COALESCE(NULLIF($3, ''), title),
 author = COALESCE(NULLIF($4, ''), author),
 publisher = COALESCE(NULLIF($5, ''), publisher),
-published_at = COALESCE($6, published_at),
-stock = COALESCE($7, stock)
-WHERE book_id = $1 RETURNING *`
+published_at = COALESCE(NULLIF($6, '0001-01-01'::date), published_at),
+stock = CASE WHEN $7 < 0 THEN stock ELSE $7 END,
+updated_at = NOW() WHERE book_id = $1 RETURNING *`
 )

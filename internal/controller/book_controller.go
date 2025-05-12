@@ -3,12 +3,26 @@ package controller
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	"github.com/crazydw4rf/book-stock-manager/internal/model"
 	"github.com/crazydw4rf/book-stock-manager/internal/usecase"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rotisserie/eris"
 )
+
+// newHTTPError creates a new HTTPError response with additional context information
+func newHTTPError(c *fiber.Ctx, status int, message string) error {
+	now := time.Now().Format(time.RFC3339)
+	return c.Status(status).JSON(model.HTTPError{
+		Code:      status,
+		Message:   message,
+		Error:     http.StatusText(status),
+		Timestamp: now,
+		Path:      c.Path(),
+	})
+}
 
 type BookController struct {
 	bookUsecase *usecase.BookUsecase
@@ -26,16 +40,16 @@ func NewBookController(bookUsecase *usecase.BookUsecase) *BookController {
 //	@Router			/books [post]
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		model.CreateBookRequest	true	"Request payload"
-//	@Success		201		{object}	model.BookResponse		"Book created"
-//	@Failure		500		{string}	string					"Failed to create book"
-//	@Failure		400		{string}	string					"Invalid request payload"
+//	@Param			payload	body		model.CreateBookRequest					true	"Request payload"
+//	@Success		201		{object}	model.DataResponse[model.BookResponse]	"Book created successfully"
+//	@Failure		500		{object}	model.HTTPError							"Internal server error"
+//	@Failure		400		{object}	model.HTTPError							"Invalid request payload"
 func (b BookController) BookCreate(c *fiber.Ctx) error {
 	// parse request body ke dalam struct CreateBookRequest
 	request := new(model.CreateBookRequest)
 	if err := c.BodyParser(request); err != nil {
 		log.Println("Error parsing request body:", err)
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid request payload")
+		return newHTTPError(c, fiber.StatusBadRequest, "Invalid request payload")
 	}
 
 	// panggil usecase untuk membuat buku baru
@@ -45,13 +59,16 @@ func (b BookController) BookCreate(c *fiber.Ctx) error {
 		log.Println("Error creating book:", eris.ToString(err, true))
 
 		if eris.As(err, &fe) {
-			return fe
+			return newHTTPError(c, fe.Code, fe.Message)
 		}
 
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to create book")
+		return newHTTPError(c, fiber.StatusInternalServerError, "Failed to create book")
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(bookResp)
+	response := model.DataResponse[model.BookResponse]{
+		Data: bookResp,
+	}
+	return c.Status(fiber.StatusCreated).JSON(response)
 }
 
 // GetBookByISBN mengambil data buku berdasarkan ISBN
@@ -62,15 +79,15 @@ func (b BookController) BookCreate(c *fiber.Ctx) error {
 //	@Router			/books/isbn/{isbn} [get]
 //	@Accept			json
 //	@Produce		json
-//	@Param			isbn	path		string				true	"ISBN"
-//	@Success		200		{object}	model.BookResponse	"Book information"
-//	@Failure		500		{string}	string				"Failed to get book by ISBN"
-//	@Failure		404		{string}	string				"Book not found"
-//	@Failure		400		{string}	string				"ISBN is required"
+//	@Param			isbn	path		string									true	"ISBN"
+//	@Success		200		{object}	model.DataResponse[model.BookResponse]	"Book information retrieved successfully"
+//	@Failure		500		{object}	model.HTTPError							"Internal server error"
+//	@Failure		404		{object}	model.HTTPError							"Book not found"
+//	@Failure		400		{object}	model.HTTPError							"Invalid ISBN format or ISBN is required"
 func (b BookController) GetBookByISBN(c *fiber.Ctx) error {
 	isbn := c.Params("isbn")
 	if isbn == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "ISBN is required")
+		return newHTTPError(c, fiber.StatusBadRequest, "ISBN is required")
 	}
 
 	book, err := b.bookUsecase.GetByISBN(c.Context(), isbn)
@@ -78,13 +95,16 @@ func (b BookController) GetBookByISBN(c *fiber.Ctx) error {
 		var fe *fiber.Error
 		log.Println("Error getting book by ISBN:", eris.ToString(err, true))
 		if eris.As(err, &fe) {
-			return fe
+			return newHTTPError(c, fe.Code, fe.Message)
 		}
 
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get book by ISBN")
+		return newHTTPError(c, fiber.StatusInternalServerError, "Failed to get book by ISBN")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(book)
+	response := model.DataResponse[model.BookResponse]{
+		Data: book,
+	}
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // GetBookByID mengambil data buku berdasarkan ID
@@ -95,51 +115,52 @@ func (b BookController) GetBookByISBN(c *fiber.Ctx) error {
 //	@Router			/books/{book_id} [get]
 //	@Accept			json
 //	@Produce		json
-//	@Param			book_id	path		string				true	"Book ID"
-//	@Success		200		{object}	model.BookResponse	"Book information"
-//	@Failure		500		{string}	string				"Failed to get book by ID"
-//	@Failure		404		{string}	string				"Book not found"
-//	@Failure		400		{string}	string				"Book ID is required"
+//	@Param			book_id	path		string									true	"Book ID"
+//	@Success		200		{object}	model.DataResponse[model.BookResponse]	"Book information retrieved successfully"
+//	@Failure		500		{object}	model.HTTPError							"Internal server error"
+//	@Failure		404		{object}	model.HTTPError							"Book not found"
+//	@Failure		400		{object}	model.HTTPError							"Invalid Book ID format or Book ID is required"
 func (b BookController) GetBookByID(c *fiber.Ctx) error {
 	bookId := c.Params("book_id")
 	if bookId == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Book ID is required")
+		return newHTTPError(c, fiber.StatusBadRequest, "Book ID is required")
 	}
 
 	book, err := b.bookUsecase.GetById(c.Context(), bookId)
 	if err != nil {
 		var fe *fiber.Error
 		if eris.As(err, &fe) {
-			return fe
+			return newHTTPError(c, fe.Code, fe.Message)
 		}
 
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get book by ID")
+		return newHTTPError(c, fiber.StatusInternalServerError, "Failed to get book by ID")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(book)
+	response := model.DataResponse[model.BookResponse]{
+		Data: book,
+	}
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // GetBooks mengambil daftar buku dengan pagination
 //
 //	@Summary		Get books with pagination
-//	@Description	Get a list of books with pagination
+//	@Description	Get a list of books with pagination support including navigation links
 //	@Tags			books
 //	@Router			/books [get]
 //	@Accept			json
 //	@Produce		json
 //	@Param			offset	query		int											false	"Page offset (default: 0)"
-//	@Param			limit	query		int											false	"Page limit (default: 10)"
-//	@Success		200		{object}	model.PaginatedResponse[model.BookResponse]	"Books information with pagination metadata"
-//	@Failure		500		{string}	string										"Failed to get books"
-//	@Failure		400		{string}	string										"Invalid query parameters"
+//	@Param			limit	query		int											false	"Page limit (default: 10, max: 100)"
+//	@Success		200		{object}	model.PaginatedResponse[model.BookResponse]	"Books information with pagination metadata and navigation links"
+//	@Failure		500		{object}	model.HTTPError								"Internal server error"
+//	@Failure		400		{object}	model.HTTPError								"Invalid query parameters"
 func (b BookController) GetBooks(c *fiber.Ctx) error {
-	// Parse pagination request
 	pagination := new(model.PaginationRequest)
 	if err := c.QueryParser(pagination); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid query parameters")
+		return newHTTPError(c, fiber.StatusBadRequest, "Invalid query parameters")
 	}
 
-	// Set default values if not provided
 	if pagination.Limit <= 0 {
 		pagination.Limit = 10
 	}
@@ -147,29 +168,24 @@ func (b BookController) GetBooks(c *fiber.Ctx) error {
 		pagination.Offset = 0
 	}
 
-	// Validate pagination parameters
 	if pagination.Limit > 100 {
-		return fiber.NewError(fiber.StatusBadRequest, "Maximum limit is 100")
+		return newHTTPError(c, fiber.StatusBadRequest, "Maximum limit is 100")
 	}
 
 	books, total, err := b.bookUsecase.GetMany(c.Context(), pagination.Offset, pagination.Limit)
 	if err != nil {
 		var fe *fiber.Error
 		if eris.As(err, &fe) {
-			return fe
+			return newHTTPError(c, fe.Code, fe.Message)
 		}
 
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get books")
+		return newHTTPError(c, fiber.StatusInternalServerError, "Failed to get books")
 	}
 
-	// Calculate if there are previous and next pages
 	hasNext := pagination.Offset+pagination.Limit < total
 	hasPrev := pagination.Offset > 0
 
-	// Build full request URL
 	baseURL := c.BaseURL() + c.Route().Path
-
-	// Create response with pagination metadata
 	response := model.PaginatedResponse[model.BookResponse]{
 		Data: books,
 		Meta: model.PaginationMeta{
@@ -184,12 +200,10 @@ func (b BookController) GetBooks(c *fiber.Ctx) error {
 		},
 	}
 
-	// Add next link if there are more items
 	if hasNext {
 		response.Links.Next = fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, pagination.Offset+pagination.Limit, pagination.Limit)
 	}
 
-	// Add previous link if not on the first page
 	if hasPrev {
 		response.Links.Prev = fmt.Sprintf("%s?offset=%d&limit=%d", baseURL, max(0, pagination.Offset-pagination.Limit), pagination.Limit)
 	}
@@ -200,33 +214,38 @@ func (b BookController) GetBooks(c *fiber.Ctx) error {
 // Update memperbarui data buku
 //
 //	@Summary		Update book
-//	@Description	Update book information partially
+//	@Description	Update book information partially. For stock field, use -1 as a sentinel value to indicate no update is intended.
 //	@Tags			books
 //	@Router			/books [patch]
 //	@Accept			json
 //	@Produce		json
-//	@Param			payload	body		model.UpdateBookRequest	true	"Request payload"
-//	@Success		200		{object}	model.BookResponse		"Updated book"
-//	@Failure		500		{string}	string					"Failed to update book"
-//	@Failure		404		{string}	string					"Book not found"
-//	@Failure		400		{string}	string					"Invalid request payload"
+//	@Param			payload	body		model.UpdateBookRequest					true	"Request payload"
+//	@Success		200		{object}	model.DataResponse[model.BookResponse]	"Book updated successfully"
+//	@Failure		500		{object}	model.HTTPError							"Internal server error"
+//	@Failure		404		{object}	model.HTTPError							"Book not found"
+//	@Failure		400		{object}	model.HTTPError							"Invalid request payload"
 func (b BookController) Update(c *fiber.Ctx) error {
 	request := new(model.UpdateBookRequest)
 	err := c.BodyParser(request)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid request payload")
+		log.Println("Error updating book:", eris.ToString(err, true))
+		return newHTTPError(c, fiber.StatusBadRequest, "Invalid request payload")
 	}
 
 	book, err := b.bookUsecase.Update(c.Context(), request)
 	if err != nil {
+		log.Println("Error updating book:", eris.ToString(err, true))
 		var fe *fiber.Error
 		if eris.As(err, &fe) {
-			return fe
+			return newHTTPError(c, fe.Code, fe.Message)
 		}
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to update book")
+		return newHTTPError(c, fiber.StatusInternalServerError, "Failed to update book")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(book)
+	response := model.DataResponse[model.BookResponse]{
+		Data: book,
+	}
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // Delete menghapus data buku berdasarkan ID
@@ -237,31 +256,30 @@ func (b BookController) Update(c *fiber.Ctx) error {
 //	@Router			/books/{book_id} [delete]
 //	@Accept			json
 //	@Produce		json
-//	@Param			book_id	path		string	true	"Book ID"
-//	@Success		204		{string}	string	"No Content"
-//	@Failure		500		{string}	string	"Failed to delete book"
-//	@Failure		404		{string}	string	"Book not found"
-//	@Failure		400		{string}	string	"Book ID is required"
+//	@Param			book_id	path		string			true	"Book ID"
+//	@Success		204		{string}	string			"Book deleted successfully"
+//	@Failure		500		{object}	model.HTTPError	"Internal server error"
+//	@Failure		404		{object}	model.HTTPError	"Book not found"
+//	@Failure		400		{object}	model.HTTPError	"Invalid Book ID format or Book ID is required"
 func (b BookController) Delete(c *fiber.Ctx) error {
 	bookId := c.Params("book_id")
 	if bookId == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Book ID is required")
+		return newHTTPError(c, fiber.StatusBadRequest, "Book ID is required")
 	}
 
 	err := b.bookUsecase.Delete(c.Context(), bookId)
 	if err != nil {
 		var fe *fiber.Error
 		if eris.As(err, &fe) {
-			return fe
+			return newHTTPError(c, fe.Code, fe.Message)
 		}
 
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to delete book")
+		return newHTTPError(c, fiber.StatusInternalServerError, "Failed to delete book")
 	}
 
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
-// max returns the maximum of two int64 values
 func max(a, b int64) int64 {
 	if a > b {
 		return a

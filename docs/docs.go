@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/books": {
             "get": {
-                "description": "Get a list of books with pagination",
+                "description": "Get a list of books with pagination support including navigation links",
                 "consumes": [
                     "application/json"
                 ],
@@ -37,14 +37,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Page limit (default: 10)",
+                        "description": "Page limit (default: 10, max: 100)",
                         "name": "limit",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Books information with pagination metadata",
+                        "description": "Books information with pagination metadata and navigation links",
                         "schema": {
                             "$ref": "#/definitions/model.PaginatedResponse-model_BookResponse"
                         }
@@ -52,13 +52,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid query parameters",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Failed to get books",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     }
                 }
@@ -88,27 +88,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Book created",
+                        "description": "Book created successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.BookResponse"
+                            "$ref": "#/definitions/model.DataResponse-model_BookResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid request payload",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Failed to create book",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     }
                 }
             },
             "patch": {
-                "description": "Update book information partially",
+                "description": "Update book information partially. For stock field, use -1 as a sentinel value to indicate no update is intended.",
                 "consumes": [
                     "application/json"
                 ],
@@ -132,27 +132,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Updated book",
+                        "description": "Book updated successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.BookResponse"
+                            "$ref": "#/definitions/model.DataResponse-model_BookResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid request payload",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Failed to update book",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     }
                 }
@@ -182,27 +182,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Book information",
+                        "description": "Book information retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.BookResponse"
+                            "$ref": "#/definitions/model.DataResponse-model_BookResponse"
                         }
                     },
                     "400": {
-                        "description": "ISBN is required",
+                        "description": "Invalid ISBN format or ISBN is required",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Failed to get book by ISBN",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     }
                 }
@@ -232,27 +232,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Book information",
+                        "description": "Book information retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/model.BookResponse"
+                            "$ref": "#/definitions/model.DataResponse-model_BookResponse"
                         }
                     },
                     "400": {
-                        "description": "Book ID is required",
+                        "description": "Invalid Book ID format or Book ID is required",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Failed to get book by ID",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     }
                 }
@@ -280,27 +280,27 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content",
+                        "description": "Book deleted successfully",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "400": {
-                        "description": "Book ID is required",
+                        "description": "Invalid Book ID format or Book ID is required",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     },
                     "500": {
-                        "description": "Failed to delete book",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.HTTPError"
                         }
                     }
                 }
@@ -379,6 +379,39 @@ const docTemplate = `{
                 }
             }
         },
+        "model.DataResponse-model_BookResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.BookResponse"
+                }
+            }
+        },
+        "model.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Bad Request"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invalid request payload"
+                },
+                "path": {
+                    "type": "string",
+                    "example": "/books"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2023-12-01T12:34:56Z"
+                }
+            }
+        },
         "model.PaginatedResponse-model_BookResponse": {
             "type": "object",
             "properties": {
@@ -449,7 +482,8 @@ const docTemplate = `{
                     "example": "Tere Liye"
                 },
                 "book_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "b2a0f3c4-5d8e-4c1b-9f7e-2d3f4e5a6b7c"
                 },
                 "isbn": {
                     "type": "string",
@@ -465,7 +499,7 @@ const docTemplate = `{
                 },
                 "stock": {
                     "type": "integer",
-                    "minimum": 0,
+                    "minimum": -1,
                     "example": 200
                 },
                 "title": {

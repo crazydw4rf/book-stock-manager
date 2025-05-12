@@ -26,11 +26,11 @@ type CreateBookRequest struct {
 }
 
 type UpdateBookRequest struct {
-	BookID      uuid.UUID `json:"book_id" validate:"required"`
+	BookID      uuid.UUID `json:"book_id" validate:"required" example:"b2a0f3c4-5d8e-4c1b-9f7e-2d3f4e5a6b7c"`
 	ISBN        string    `json:"isbn" validate:"omitempty,isbn" example:"9783161484100"`
 	Title       string    `json:"title" validate:"omitempty" example:"Hujan"`
 	Author      string    `json:"author" validate:"omitempty" example:"Tere Liye"`
 	Publisher   string    `json:"publisher" validate:"omitempty" example:"Gramedia"`
 	PublishedAt time.Time `json:"published_at" validate:"omitempty" example:"2016-01-28"`
-	Stock       int64     `json:"stock" validate:"omitempty,gte=0" example:"200"`
+	Stock       int64     `json:"stock" validate:"omitempty,gte=-1" example:"200"`
 }

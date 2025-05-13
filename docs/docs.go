@@ -52,13 +52,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid query parameters",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     }
                 }
@@ -96,13 +96,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request payload",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     }
                 }
@@ -140,19 +140,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request payload",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     }
                 }
@@ -190,19 +190,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid ISBN format or ISBN is required",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     }
                 }
@@ -240,19 +240,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid Book ID format or Book ID is required",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     }
                 }
@@ -288,19 +288,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid Book ID format or Book ID is required",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Book not found",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/model.HTTPError"
+                            "$ref": "#/definitions/types.HTTPError"
                         }
                     }
                 }
@@ -384,31 +384,6 @@ const docTemplate = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/model.BookResponse"
-                }
-            }
-        },
-        "model.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "error": {
-                    "type": "string",
-                    "example": "Bad Request"
-                },
-                "message": {
-                    "type": "string",
-                    "example": "Invalid request payload"
-                },
-                "path": {
-                    "type": "string",
-                    "example": "/books"
-                },
-                "timestamp": {
-                    "type": "string",
-                    "example": "2023-12-01T12:34:56Z"
                 }
             }
         },
@@ -505,6 +480,31 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "example": "Hujan"
+                }
+            }
+        },
+        "types.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "error": {
+                    "type": "string",
+                    "example": "Bad Request"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invalid request payload"
+                },
+                "path": {
+                    "type": "string",
+                    "example": "/books"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2023-12-01T12:34:56Z"
                 }
             }
         }

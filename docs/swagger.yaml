@@ -58,24 +58,6 @@ definitions:
       data:
         $ref: '#/definitions/model.BookResponse'
     type: object
-  model.HTTPError:
-    properties:
-      code:
-        example: 400
-        type: integer
-      error:
-        example: Bad Request
-        type: string
-      message:
-        example: Invalid request payload
-        type: string
-      path:
-        example: /books
-        type: string
-      timestamp:
-        example: "2023-12-01T12:34:56Z"
-        type: string
-    type: object
   model.PaginatedResponse-model_BookResponse:
     properties:
       data:
@@ -144,6 +126,24 @@ definitions:
     required:
     - book_id
     type: object
+  types.HTTPError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      error:
+        example: Bad Request
+        type: string
+      message:
+        example: Invalid request payload
+        type: string
+      path:
+        example: /books
+        type: string
+      timestamp:
+        example: "2023-12-01T12:34:56Z"
+        type: string
+    type: object
 info:
   contact: {}
   description: Backend API service for Book Stock Manager
@@ -175,11 +175,11 @@ paths:
         "400":
           description: Invalid query parameters
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
       summary: Get books with pagination
       tags:
       - books
@@ -205,15 +205,15 @@ paths:
         "400":
           description: Invalid request payload
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "404":
           description: Book not found
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
       summary: Update book
       tags:
       - books
@@ -238,11 +238,11 @@ paths:
         "400":
           description: Invalid request payload
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
       summary: Create a new book
       tags:
       - books
@@ -267,15 +267,15 @@ paths:
         "400":
           description: Invalid Book ID format or Book ID is required
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "404":
           description: Book not found
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
       summary: Delete book
       tags:
       - books
@@ -299,15 +299,15 @@ paths:
         "400":
           description: Invalid Book ID format or Book ID is required
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "404":
           description: Book not found
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
       summary: Get book by ID
       tags:
       - books
@@ -332,15 +332,15 @@ paths:
         "400":
           description: Invalid ISBN format or ISBN is required
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "404":
           description: Book not found
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
         "500":
           description: Internal server error
           schema:
-            $ref: '#/definitions/model.HTTPError'
+            $ref: '#/definitions/types.HTTPError'
       summary: Get book by ISBN
       tags:
       - books

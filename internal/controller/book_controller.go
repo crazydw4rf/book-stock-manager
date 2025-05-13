@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/crazydw4rf/book-stock-manager/internal/model"
+	"github.com/crazydw4rf/book-stock-manager/internal/types"
 	"github.com/crazydw4rf/book-stock-manager/internal/usecase"
 	"github.com/gofiber/fiber/v2"
 	"github.com/rotisserie/eris"
@@ -15,7 +16,7 @@ import (
 // newHTTPError creates a new HTTPError response with additional context information
 func newHTTPError(c *fiber.Ctx, status int, message string) error {
 	now := time.Now().Format(time.RFC3339)
-	return c.Status(status).JSON(model.HTTPError{
+	return c.Status(status).JSON(types.HTTPError{
 		Code:      status,
 		Message:   message,
 		Error:     http.StatusText(status),
@@ -42,8 +43,8 @@ func NewBookController(bookUsecase *usecase.BookUsecase) *BookController {
 //	@Produce		json
 //	@Param			payload	body		model.CreateBookRequest					true	"Request payload"
 //	@Success		201		{object}	model.DataResponse[model.BookResponse]	"Book created successfully"
-//	@Failure		500		{object}	model.HTTPError							"Internal server error"
-//	@Failure		400		{object}	model.HTTPError							"Invalid request payload"
+//	@Failure		500		{object}	types.HTTPError							"Internal server error"
+//	@Failure		400		{object}	types.HTTPError							"Invalid request payload"
 func (b BookController) BookCreate(c *fiber.Ctx) error {
 	// parse request body ke dalam struct CreateBookRequest
 	request := new(model.CreateBookRequest)
@@ -81,9 +82,9 @@ func (b BookController) BookCreate(c *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			isbn	path		string									true	"ISBN"
 //	@Success		200		{object}	model.DataResponse[model.BookResponse]	"Book information retrieved successfully"
-//	@Failure		500		{object}	model.HTTPError							"Internal server error"
-//	@Failure		404		{object}	model.HTTPError							"Book not found"
-//	@Failure		400		{object}	model.HTTPError							"Invalid ISBN format or ISBN is required"
+//	@Failure		500		{object}	types.HTTPError							"Internal server error"
+//	@Failure		404		{object}	types.HTTPError							"Book not found"
+//	@Failure		400		{object}	types.HTTPError							"Invalid ISBN format or ISBN is required"
 func (b BookController) GetBookByISBN(c *fiber.Ctx) error {
 	isbn := c.Params("isbn")
 	if isbn == "" {
@@ -117,9 +118,9 @@ func (b BookController) GetBookByISBN(c *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			book_id	path		string									true	"Book ID"
 //	@Success		200		{object}	model.DataResponse[model.BookResponse]	"Book information retrieved successfully"
-//	@Failure		500		{object}	model.HTTPError							"Internal server error"
-//	@Failure		404		{object}	model.HTTPError							"Book not found"
-//	@Failure		400		{object}	model.HTTPError							"Invalid Book ID format or Book ID is required"
+//	@Failure		500		{object}	types.HTTPError							"Internal server error"
+//	@Failure		404		{object}	types.HTTPError							"Book not found"
+//	@Failure		400		{object}	types.HTTPError							"Invalid Book ID format or Book ID is required"
 func (b BookController) GetBookByID(c *fiber.Ctx) error {
 	bookId := c.Params("book_id")
 	if bookId == "" {
@@ -153,8 +154,8 @@ func (b BookController) GetBookByID(c *fiber.Ctx) error {
 //	@Param			offset	query		int											false	"Page offset (default: 0)"
 //	@Param			limit	query		int											false	"Page limit (default: 10, max: 100)"
 //	@Success		200		{object}	model.PaginatedResponse[model.BookResponse]	"Books information with pagination metadata and navigation links"
-//	@Failure		500		{object}	model.HTTPError								"Internal server error"
-//	@Failure		400		{object}	model.HTTPError								"Invalid query parameters"
+//	@Failure		500		{object}	types.HTTPError								"Internal server error"
+//	@Failure		400		{object}	types.HTTPError								"Invalid query parameters"
 func (b BookController) GetBooks(c *fiber.Ctx) error {
 	pagination := new(model.PaginationRequest)
 	if err := c.QueryParser(pagination); err != nil {
@@ -221,9 +222,9 @@ func (b BookController) GetBooks(c *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			payload	body		model.UpdateBookRequest					true	"Request payload"
 //	@Success		200		{object}	model.DataResponse[model.BookResponse]	"Book updated successfully"
-//	@Failure		500		{object}	model.HTTPError							"Internal server error"
-//	@Failure		404		{object}	model.HTTPError							"Book not found"
-//	@Failure		400		{object}	model.HTTPError							"Invalid request payload"
+//	@Failure		500		{object}	types.HTTPError							"Internal server error"
+//	@Failure		404		{object}	types.HTTPError							"Book not found"
+//	@Failure		400		{object}	types.HTTPError							"Invalid request payload"
 func (b BookController) Update(c *fiber.Ctx) error {
 	request := new(model.UpdateBookRequest)
 	err := c.BodyParser(request)
@@ -258,9 +259,9 @@ func (b BookController) Update(c *fiber.Ctx) error {
 //	@Produce		json
 //	@Param			book_id	path		string			true	"Book ID"
 //	@Success		204		{string}	string			"Book deleted successfully"
-//	@Failure		500		{object}	model.HTTPError	"Internal server error"
-//	@Failure		404		{object}	model.HTTPError	"Book not found"
-//	@Failure		400		{object}	model.HTTPError	"Invalid Book ID format or Book ID is required"
+//	@Failure		500		{object}	types.HTTPError	"Internal server error"
+//	@Failure		404		{object}	types.HTTPError	"Book not found"
+//	@Failure		400		{object}	types.HTTPError	"Invalid Book ID format or Book ID is required"
 func (b BookController) Delete(c *fiber.Ctx) error {
 	bookId := c.Params("book_id")
 	if bookId == "" {

@@ -18,14 +18,14 @@ var (
 )
 
 const (
-	BASE_API_HTTP_PATH           = "/api/v1"
-	SESSION_COOKIE_NAME          = "__Host_session_"
-	REFRESH_TOKEN_COOKIE_NAME    = "__Host_refreshtoken_"
-	ACCESS_TOKEN_COOKIE_NAME     = "__Host_token_"
-	ACCESS_TOKEN_HEADER_NAME     = "Authorization"
-	CSRF_HEADER_NAME             = "X-Csrf-Token"
-	CSRF_COOKIE_NAME             = "__Host_csrf_"
-	ACCESS_TOKEN_EXPIRATION_TIME = time.Minute * 15
+	BASE_API_HTTP_PATH            = "/api/v1"
+	SESSION_COOKIE_NAME           = "__Host_session_"
+	REFRESH_TOKEN_COOKIE_NAME     = "__Host_refreshtoken_"
+	ACCESS_TOKEN_COOKIE_NAME      = "__Host_token_"
+	ACCESS_TOKEN_HEADER_NAME      = "Authorization"
+	CSRF_HEADER_NAME              = "X-Csrf-Token"
+	CSRF_COOKIE_NAME              = "__Host_csrf_"
+	ACCESS_TOKEN_EXPIRATION_TIME  = time.Minute * 15
 	REFRESH_TOKEN_EXPIRATION_TIME = (time.Hour * 24) * 7
 )
 
@@ -48,9 +48,9 @@ func InitConfig() (*Config, error) {
 	v.AddConfigPath(".")
 	v.SetConfigType("env")
 	v.SetConfigName(".env")
+	v.AutomaticEnv()
 
 	bindEnvStruct(v, cfg)
-	v.AutomaticEnv()
 
 	err := v.ReadInConfig()
 	if err != nil {

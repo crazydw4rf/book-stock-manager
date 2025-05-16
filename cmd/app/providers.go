@@ -26,7 +26,6 @@ func newConfig() (*config.Config, error) {
 		return nil, err
 	}
 
-	fmt.Println(cfg)
 	return cfg, nil
 }
 

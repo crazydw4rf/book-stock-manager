@@ -75,6 +75,8 @@ go run ./cmd/app/main.go
 After the application is running, the Swagger UI for API documentation can be accessed at: `http://localhost:8080/docs/`
 
 ## TODO
-- [ ] Fix Dockerfile and compose.yml
-- [ ] Add unit and integration tests
-- [ ] Implement user authentication
+- [ ] Add a service to handle database migrations in the `compose.yml` file.
+- [ ] Add CI/CD actions to automate the build, test, and deployment processes.
+- [ ] Add unit tests and integration tests.
+- [ ] Implement user authentication features.
+- [ ] Improve the documentation.

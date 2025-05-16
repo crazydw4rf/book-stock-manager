@@ -75,6 +75,8 @@ go run ./cmd/app/main.go
 Setelah app running, Swagger UI untuk dokumentasi API bisa diakses di: `http://localhost:8080/docs/`
 
 ## TODO
-- [ ] Memperbaiki Dockerfile dan compose.yml
-- [ ] Menambahkan unit dan integration tests
-- [ ] Menambahkan fitur autentikasi pengguna
+- [ ] Menambahkan service untuk menangani migrasi database pada file `compose.yml`.
+- [ ] Menambahkan file aksi CI/CD untuk otomatisasi proses build, test, dan deployment.
+- [ ] Menambahkan unit test dan integration test.
+- [ ] Mengimplementasikan fitur autentikasi pengguna.
+- [ ] Memperbaiki dokumentasi.

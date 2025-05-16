@@ -1,18 +1,39 @@
+# TODO: create new service to handle database migration
+
 services:
   backend-api:
-    image: book-stock-manager
+    image: book-stock-manager:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: book-stock-manager-service
+    container_name: book-stock-manager-svc
     env_file: .env
     ports:
-      - "127.0.0.1:8080:8080/tcp"
-    networks:
-      - backend-internal-network
+      - 127.0.0.1:8080:8080/tcp
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - DB_HOST=pq-db-book-svc
+      - DB_PORT=${PGPORT}
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    links:
+      - postgres-db
 
-networks:
-  backend-internal-network:
+  postgres-db:
+    image: postgres:alpine
+    container_name: pq-db-book-svc
+    volumes:
+      - pq-db-book-vol:/var/lib/postgresql/data
+    env_file: .db.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/local/bin/docker-entrypoint.sh", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  db-book:
+  pq-db-book-vol:

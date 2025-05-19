@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/crazydw4rf/book-stock-manager/internal/config"
@@ -24,14 +26,15 @@ func main() {
 
 	cfg, err := config.InitConfig()
 	if err != nil {
-		panic(err)
+		log.Println("Error loading config:", err)
 	}
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", cfg.DB_USER, cfg.DB_PASSWORD, cfg.DB_HOST, cfg.DB_PORT, cfg.DB_NAME)
 
 	m, err := migrate.New("file://"+migrateDir, dsn)
 	if err != nil {
-		panic(err)
+		log.Println("Error creating migration instance:", err)
+		os.Exit(1)
 	}
 
 	switch migrateAction {
@@ -45,6 +48,12 @@ func main() {
 	}
 
 	if err != nil {
-		panic(err)
+		if errors.Is(err, migrate.ErrNoChange) {
+			fmt.Println("No changes to apply.")
+			os.Exit(0)
+		}
+
+		log.Println("Error applying migration:", err)
+		os.Exit(1)
 	}
 }

@@ -75,7 +75,6 @@ go run ./cmd/app/main.go
 Setelah app running, Swagger UI untuk dokumentasi API bisa diakses di: `http://localhost:8080/docs/`
 
 ## TODO
-- [ ] Menambahkan service untuk menangani migrasi database pada file `compose.yml`.
 - [ ] Menambahkan file aksi CI/CD untuk otomatisasi proses build, test, dan deployment.
 - [ ] Menambahkan unit test dan integration test.
 - [ ] Mengimplementasikan fitur autentikasi pengguna.

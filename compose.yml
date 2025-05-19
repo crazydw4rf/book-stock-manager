@@ -1,5 +1,3 @@
-# TODO: create new service to handle database migration
-
 services:
   backend-api:
     image: book-stock-manager:latest
@@ -14,12 +12,32 @@ services:
       - APP_HOST=0.0.0.0
       - APP_PORT=8080
       - DB_HOST=pq-db-book-svc
-      - DB_PORT=${PGPORT}
+      - DB_PORT=23211
     depends_on:
       postgres-db:
         condition: service_healthy
     links:
       - postgres-db
+
+  database-migrator:
+    image: db-migrator:latest
+    container_name: db-migrator-svc
+    build:
+      context: .
+      dockerfile: migrator.Dockerfile
+    command: /db/migrations up
+    env_file: .env
+    environment:
+      - DB_HOST=pq-db-book-svc
+      - DB_PORT=23211
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=book_stock_manager
+    links:
+      - postgres-db
+    depends_on:
+      postgres-db:
+        condition: service_healthy
 
   postgres-db:
     image: postgres:alpine

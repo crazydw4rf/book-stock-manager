@@ -13,7 +13,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/rotisserie/eris v0.5.4
 	github.com/spf13/viper v1.20.1
-	github.com/swaggo/swag v1.16.5
+	github.com/swaggo/swag v1.16.6
 	go.uber.org/fx v1.24.0
 )
 
